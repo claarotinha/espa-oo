@@ -1,0 +1,9 @@
+PARTES 1 A 3 - SHOOTER 2D
+Abra o projeto na Unity 6000.5.5f1.
+No menu superior, clique Ferramentas > Preparar fase inicial.
+Abra Assets/Scenes/_Boot e pressione Play.
+WASD / setas: movimentar. Espaco: atirar (segurar para tiro continuo).
+Os tres indicadores representam danos que a nave suporta; morre no quarto dano.
+A nave e o chefao sao formas provisórias para substituir por arte depois.
+A vida e os estados completos do chefao pertencem as proximas partes.
+A camera nao acompanha o jogador.

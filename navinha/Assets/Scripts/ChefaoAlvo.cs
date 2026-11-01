@@ -1,13 +1,39 @@
 using UnityEngine;
+using System;
 
-// Alvo temporario para testar a colisao antes de implementar os estados do chefao.
+public enum FaseVidaChefao { Alta, Media, Baixa, Derrotado }
+
 public class ChefaoAlvo : MonoBehaviour
 {
-    [SerializeField] private int vida = 60;
-    public int Vida => vida;
+    [SerializeField, Min(1)] private int vidaMaxima = 180;
+    [SerializeField] private int vidaAtual;
+    public int Vida => vidaAtual;
+    public int VidaMaxima => vidaMaxima;
+    public float PercentualVida => (float)vidaAtual / vidaMaxima;
+    public FaseVidaChefao Fase { get; private set; }
+    public event Action<ChefaoAlvo> VidaAlterada;
+
+    private void Awake()
+    {
+        vidaAtual = vidaMaxima;
+        AtualizarFase();
+    }
+
     public void ReceberDano(int dano)
     {
-        vida = Mathf.Max(0, vida - Mathf.Max(0, dano));
-        if (vida == 0) Debug.Log("Alvo atingido ate zerar a vida.");
+        if (vidaAtual <= 0 || dano <= 0) return;
+        vidaAtual = Mathf.Max(0, vidaAtual - dano);
+        AtualizarFase();
+        VidaAlterada?.Invoke(this);
+        if (vidaAtual == 0) Debug.Log("Chefao derrotado!");
+    }
+
+    private void AtualizarFase()
+    {
+        // Limites sem lacunas: 50% pertence a Media e 20% pertence a Baixa.
+        Fase = vidaAtual <= 0 ? FaseVidaChefao.Derrotado :
+               PercentualVida <= .2f ? FaseVidaChefao.Baixa :
+               PercentualVida <= .5f ? FaseVidaChefao.Media :
+               FaseVidaChefao.Alta;
     }
 }

@@ -36,6 +36,13 @@ public class ChefaoCombate : MonoBehaviour
     {
         vida = GetComponent<ChefaoAlvo>();
         animator = GetComponent<Animator>();
+        // O Controller pode estar no objeto visual filho do chefao.
+        if (animator != null && animator.runtimeAnimatorController == null)
+        {
+            Animator[] animadores = GetComponentsInChildren<Animator>(true);
+            foreach (Animator candidato in animadores)
+                if (candidato.runtimeAnimatorController != null) { animator = candidato; break; }
+        }
         visual = GetComponent<SpriteRenderer>();
         if (visual != null) corOriginal = visual.color;
         origem = transform.position;
@@ -68,7 +75,7 @@ public class ChefaoCombate : MonoBehaviour
         for (int i = 0; i < reserva.Length; i++) reserva[i] = pool.Get();
         for (int i = 0; i < reserva.Length; i++) pool.Release(reserva[i]);
         animadorDisponivel = animator != null && animator.runtimeAnimatorController != null;
-        if (!animadorDisponivel) Debug.LogWarning("Chefao: Animator Controller ausente. Usando os nove comportamentos diretamente ate o Controller ser atribuido.", this);
+        // Sem Controller, os nove comportamentos continuam funcionando por codigo.
         Trocar(true);
     }
 

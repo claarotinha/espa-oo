@@ -43,9 +43,9 @@ public class ChefaoCombate : MonoBehaviour
 
     private void Start()
     {
-        Jogador p = FindFirstObjectByType<Jogador>();
+        Jogador p = FindAnyObjectByType<Jogador>();
         if (p != null) jogador = p.transform;
-        DisparoJogador disparo = FindFirstObjectByType<DisparoJogador>();
+        DisparoJogador disparo = FindAnyObjectByType<DisparoJogador>();
         if (disparo != null)
         {
             spriteBalaJogador = disparo.SpriteBala;

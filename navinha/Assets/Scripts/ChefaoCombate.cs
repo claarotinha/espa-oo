@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine.Pool;
 using UnityEngine;
 
@@ -6,11 +7,15 @@ using UnityEngine;
 public class ChefaoCombate : MonoBehaviour
 {
     [SerializeField] private float duracaoComportamento = 3.5f;
+    [SerializeField, Min(2f)] private float duracaoTransicao = 2.5f;
+    [SerializeField] private Color corInvulneravel = new Color(.35f, .9f, 1f, 1f);
     [SerializeField] private float amplitudeMovimento = 2.6f;
     [SerializeField] private TiroChefao prefabTiro;
     [SerializeField, Min(5)] private int quantidadeInicial = 45;
     [SerializeField, Min(10)] private int limiteTiros = 120;
     private ObjectPool<TiroChefao> pool;
+    private bool emTransicao;
+    private Coroutine rotinaTransicao;
     private ChefaoAlvo vida;
     private Animator animator;
     private Transform jogador;
@@ -64,10 +69,47 @@ public class ChefaoCombate : MonoBehaviour
 
     private void Update()
     {
-        if (vida.Vida <= 0) { animator.speed = 0; return; }
+        if (vida.Vida <= 0)
+        {
+            if (rotinaTransicao != null) { StopCoroutine(rotinaTransicao); rotinaTransicao = null; }
+            emTransicao = false;
+            vida.DefinirInvulnerabilidade(false);
+            animator.speed = 0;
+            return;
+        }
+        if (emTransicao) return;
         int fase = IndiceFase();
-        if (fase != faseAnterior || tempoEstado >= duracaoComportamento)
-            Trocar(fase != faseAnterior);
+        if (fase != faseAnterior)
+        {
+            rotinaTransicao = StartCoroutine(Transicionar());
+            return;
+        }
+        if (tempoEstado >= duracaoComportamento) Trocar(false);
+    }
+
+    private IEnumerator Transicionar()
+    {
+        emTransicao = true;
+        vida.DefinirInvulnerabilidade(true);
+        animator.speed = 0f;
+        velocidadeSuavizacao = Vector3.zero;
+        float tempo = 0f;
+        while (tempo < duracaoTransicao)
+        {
+            tempo += Time.deltaTime;
+            if (visual != null)
+            {
+                float pulso = Mathf.PingPong(tempo * 6f, 1f);
+                visual.color = Color.Lerp(corOriginal, corInvulneravel, pulso);
+            }
+            yield return null;
+        }
+        if (visual != null) visual.color = corOriginal;
+        vida.DefinirInvulnerabilidade(false);
+        animator.speed = 1f;
+        emTransicao = false;
+        rotinaTransicao = null;
+        Trocar(true);
     }
 
     private int IndiceFase() => vida.Fase == FaseVidaChefao.Alta ? 0 :
@@ -91,7 +133,7 @@ public class ChefaoCombate : MonoBehaviour
 
     public void Executar(int tipo)
     {
-        if (vida.Vida <= 0) return;
+        if (vida.Vida <= 0 || emTransicao) return;
         tempoEstado += Time.deltaTime;
         float t = Time.time;
         float rapidez = tipo < 3 ? 1f : tipo < 6 ? 1.6f : 2.4f;
@@ -157,6 +199,12 @@ public class ChefaoCombate : MonoBehaviour
         pool.Release(tiro);
     }
 
+    private void OnDisable()
+    {
+        if (vida != null) vida.DefinirInvulnerabilidade(false);
+        if (animator != null) animator.speed = 1f;
+    }
+
     private void OnDestroy()
     {
         // A Unity destroi os objetos da cena; nao limpar o pool aqui.
@@ -176,6 +224,6 @@ public class ChefaoCombate : MonoBehaviour
 
     public void Encerrar()
     {
-        if (visual != null) visual.color = corOriginal;
+        if (visual != null && !emTransicao) visual.color = corOriginal;
     }
 }

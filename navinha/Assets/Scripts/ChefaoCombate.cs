@@ -1,3 +1,4 @@
+using UnityEngine.Pool;
 using UnityEngine;
 
 // 0-2: vida alta; 3-5: media; 6-8: baixa.
@@ -6,13 +7,15 @@ public class ChefaoCombate : MonoBehaviour
 {
     [SerializeField] private float duracaoComportamento = 3.5f;
     [SerializeField] private float amplitudeMovimento = 2.6f;
-    [SerializeField] private float danoContatoCooldown = 1f;
+    [SerializeField] private TiroChefao prefabTiro;
+    [SerializeField, Min(5)] private int quantidadeInicial = 45;
+    [SerializeField, Min(10)] private int limiteTiros = 120;
+    private ObjectPool<TiroChefao> pool;
     private ChefaoAlvo vida;
     private Animator animator;
     private Transform jogador;
     private Vector3 origem;
-    private float tempoEstado, tempoTiro, tempoDano;
-    private int comportamento = -1;
+    private float tempoEstado, tempoTiro;
     private int anterior = -1;
     private int faseAnterior = -1;
     private SpriteRenderer visual;
@@ -40,6 +43,22 @@ public class ChefaoCombate : MonoBehaviour
             spriteBalaJogador = disparo.SpriteBala;
             escalaBalaJogador = disparo.EscalaBala;
         }
+        if (prefabTiro == null)
+        {
+            Debug.LogError("ChefaoCombate: prefabTiro nao configurado.", this);
+            enabled = false;
+            return;
+        }
+        pool = new ObjectPool<TiroChefao>(
+            () => Instantiate(prefabTiro),
+            tiro => { if (tiro != null) tiro.gameObject.SetActive(true); },
+            tiro => { if (tiro != null) { tiro.Desativar(); tiro.gameObject.SetActive(false); } },
+            tiro => { if (tiro != null) Destroy(tiro.gameObject); },
+            true, quantidadeInicial, limiteTiros);
+        // Prepara objetos antes do combate para evitar alocacoes nos ataques.
+        TiroChefao[] reserva = new TiroChefao[quantidadeInicial];
+        for (int i = 0; i < reserva.Length; i++) reserva[i] = pool.Get();
+        for (int i = 0; i < reserva.Length; i++) pool.Release(reserva[i]);
         Trocar(true);
     }
 
@@ -66,7 +85,6 @@ public class ChefaoCombate : MonoBehaviour
 
     public void Iniciar(int tipo)
     {
-        comportamento = tipo;
         tempoEstado = 0;
         tempoTiro = 0;
     }
@@ -117,20 +135,30 @@ public class ChefaoCombate : MonoBehaviour
         {
             float angulo = quantidade == 1 ? 0 : Mathf.Lerp(-abertura, abertura, (float)i / (quantidade - 1));
             Vector2 direcao = Quaternion.Euler(0, 0, angulo) * baseDir;
-            GameObject bala = new GameObject("Tiro Chefao");
+            TiroChefao bala = pool.Get();
+            if (bala == null) continue;
             bala.transform.position = transform.position + Vector3.down * .65f;
-            var sprite = bala.AddComponent<SpriteRenderer>();
-            sprite.sprite = spriteBalaJogador != null ? spriteBalaJogador : SpritePadrao();
-            sprite.color = tipo < 3 ? Color.yellow : tipo < 6 ? new Color(1, .5f, 0) : Color.red;
             bala.transform.localScale = escalaBalaJogador;
-            bala.transform.rotation = Quaternion.FromToRotation(Vector3.up, new Vector3(direcao.x, direcao.y, 0f));
-            var col = bala.AddComponent<BoxCollider2D>();
-            col.isTrigger = true;
-            var corpo = bala.AddComponent<Rigidbody2D>();
-            corpo.bodyType = RigidbodyType2D.Kinematic;
-            var proj = bala.AddComponent<TiroChefao>();
-            proj.Iniciar(direcao, tipo < 3 ? 4f : tipo < 6 ? 5.5f : 7f);
+            SpriteRenderer sprite = bala.GetComponent<SpriteRenderer>();
+            if (sprite != null)
+            {
+                if (spriteBalaJogador != null) sprite.sprite = spriteBalaJogador;
+                sprite.color = tipo < 3 ? Color.yellow : tipo < 6 ? new Color(1f, .5f, 0f) : Color.red;
+            }
+            bala.Iniciar(direcao, tipo < 3 ? 4f : tipo < 6 ? 5.5f : 7f, DevolverTiro);
         }
+    }
+
+    private void DevolverTiro(TiroChefao tiro)
+    {
+        if (pool == null || tiro == null) return;
+        pool.Release(tiro);
+    }
+
+    private void OnDestroy()
+    {
+        // A Unity destroi os objetos da cena; nao limpar o pool aqui.
+        pool = null;
     }
 
     private static Sprite spriteCache;

@@ -1320,9 +1320,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba712a006cdb4ef78c50b2a0d0cae102, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChefaoCombate
-  prefabTiro: {fileID: 4108555152998502252, guid: f3c89a0d74214a9aa56f1b2c81c3f701, type: 3}
-  quantidadeInicial: 45
-  limiteTiros: 120
+  prefabTiro: {fileID: 3520821513770583839, guid: f3c89a0d74214a9aa56f1b2c81c3f701, type: 3}
+  quantidadeInicial: 20
+  limiteTiros: 30
   duracaoComportamento: 3.5
   amplitudeMovimento: 2.6
   danoContatoCooldown: 1

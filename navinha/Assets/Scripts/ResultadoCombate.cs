@@ -18,9 +18,9 @@ public class ResultadoCombate : MonoBehaviour
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Preparar()
     {
-        if (FindFirstObjectByType<ResultadoCombate>() != null) return;
-        Jogador jogador = FindFirstObjectByType<Jogador>();
-        ChefaoAlvo chefao = FindFirstObjectByType<ChefaoAlvo>();
+        if (FindAnyObjectByType<ResultadoCombate>() != null) return;
+        Jogador jogador = FindAnyObjectByType<Jogador>();
+        ChefaoAlvo chefao = FindAnyObjectByType<ChefaoAlvo>();
         if (jogador == null || chefao == null) return;
         new GameObject("Resultado do Combate").AddComponent<ResultadoCombate>();
     }
@@ -28,8 +28,8 @@ public class ResultadoCombate : MonoBehaviour
     private void Awake()
     {
         Time.timeScale = 1f;
-        jogador = FindFirstObjectByType<Jogador>();
-        chefao = FindFirstObjectByType<ChefaoAlvo>();
+        jogador = FindAnyObjectByType<Jogador>();
+        chefao = FindAnyObjectByType<ChefaoAlvo>();
         combate = chefao != null ? chefao.GetComponent<ChefaoCombate>() : null;
         CriarInterface();
     }
@@ -80,7 +80,7 @@ public class ResultadoCombate : MonoBehaviour
 
     private void CriarInterface()
     {
-        if (FindFirstObjectByType<EventSystem>() == null)
+        if (FindAnyObjectByType<EventSystem>() == null)
         {
             GameObject eventos = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
         }

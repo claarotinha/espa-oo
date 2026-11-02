@@ -14,6 +14,9 @@ public class DisparoJogador : MonoBehaviour
     private bool botaoAnterior;
     private Jogador jogador;
 
+    public Sprite SpriteBala => prefabBala != null && prefabBala.TryGetComponent<SpriteRenderer>(out var visual) ? visual.sprite : null;
+    public Vector3 EscalaBala => prefabBala != null ? prefabBala.transform.localScale : new Vector3(.2f, .5f, 1f);
+
     private void Awake()
     {
         jogador = GetComponent<Jogador>();

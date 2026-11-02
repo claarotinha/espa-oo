@@ -22,6 +22,8 @@ public class ChefaoCombate : MonoBehaviour
     private Transform jogador;
     private Vector3 origem;
     private float tempoEstado, tempoTiro;
+    private int tipoAtual;
+    private bool animadorDisponivel;
     private int anterior = -1;
     private int faseAnterior = -1;
     private SpriteRenderer visual;
@@ -65,6 +67,8 @@ public class ChefaoCombate : MonoBehaviour
         TiroChefao[] reserva = new TiroChefao[quantidadeInicial];
         for (int i = 0; i < reserva.Length; i++) reserva[i] = pool.Get();
         for (int i = 0; i < reserva.Length; i++) pool.Release(reserva[i]);
+        animadorDisponivel = animator != null && animator.runtimeAnimatorController != null;
+        if (!animadorDisponivel) Debug.LogWarning("Chefao: Animator Controller ausente. Usando os nove comportamentos diretamente ate o Controller ser atribuido.", this);
         Trocar(true);
     }
 
@@ -89,6 +93,7 @@ public class ChefaoCombate : MonoBehaviour
             return;
         }
         if (emTransicao) return;
+        if (!animadorDisponivel) Executar(tipoAtual);
         int fase = IndiceFase();
         if (fase != faseAnterior)
         {
@@ -133,17 +138,21 @@ public class ChefaoCombate : MonoBehaviour
         anterior = proximo;
         faseAnterior = fase;
         tempoEstado = 0;
-        animator.Play("Comportamento" + (proximo + 1), 0, 0f);
+        tipoAtual = proximo;
+        Iniciar(proximo);
+        if (animadorDisponivel) animator.Play("Comportamento" + (proximo + 1), 0, 0f);
     }
 
     public void Iniciar(int tipo)
     {
+        tipoAtual = tipo;
         tempoEstado = 0;
         tempoTiro = 0;
     }
 
     public void Executar(int tipo)
     {
+        if (animadorDisponivel == false && tipo != tipoAtual) return;
         if (combateEncerrado || vida.Vida <= 0 || emTransicao || pool == null) return;
         tempoEstado += Time.deltaTime;
         float t = Time.time;

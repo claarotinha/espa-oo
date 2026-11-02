@@ -12,7 +12,11 @@ public static class PrepararComportamentos
     private const string Pasta = "Assets/Animacoes";
     private const string Caminho = Pasta + "/Chefao.controller";
     private const string Cena = "Assets/Scenes/Jogo.unity";
-    static PrepararComportamentos() { EditorApplication.delayCall += Preparar; }
+    static PrepararComportamentos()
+    {
+        EditorApplication.delayCall += Preparar;
+        EditorSceneManager.sceneOpened += (scene, mode) => EditorApplication.delayCall += Preparar;
+    }
 
     private static void Preparar()
     {
@@ -39,10 +43,18 @@ public static class PrepararComportamentos
         if (chefe == null) return;
         Animator animator = chefe.GetComponent<Animator>();
         if (animator == null) animator = chefe.AddComponent<Animator>();
-        animator.runtimeAnimatorController = controller;
-        if (chefe.GetComponent<ChefaoCombate>() == null) chefe.AddComponent<ChefaoCombate>();
-        EditorSceneManager.MarkSceneDirty(atual);
-        EditorSceneManager.SaveScene(atual);
+        bool mudou = animator.runtimeAnimatorController != controller;
+        if (mudou) animator.runtimeAnimatorController = controller;
+        if (chefe.GetComponent<ChefaoCombate>() == null)
+        {
+            chefe.AddComponent<ChefaoCombate>();
+            mudou = true;
+        }
+        if (mudou)
+        {
+            EditorSceneManager.MarkSceneDirty(atual);
+            EditorSceneManager.SaveScene(atual);
+        }
     }
 }
 #endif

@@ -1347,7 +1347,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4264736030993346648, guid: 4f754769f2ae9fe449e550624df77626, type: 3}
       propertyPath: intervalo
-      value: 0.523
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 4264736030993346648, guid: 4f754769f2ae9fe449e550624df77626, type: 3}
       propertyPath: saidaTiro
@@ -1357,6 +1357,10 @@ PrefabInstance:
       propertyPath: prefabBala
       value: 
       objectReference: {fileID: 3520821513770583839, guid: 6eeb9875e23a9ab4a85793697b43682f, type: 3}
+    - target: {fileID: 4264736030993346648, guid: 4f754769f2ae9fe449e550624df77626, type: 3}
+      propertyPath: velocidadeBala
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 7244991463768290092, guid: 4f754769f2ae9fe449e550624df77626, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.03

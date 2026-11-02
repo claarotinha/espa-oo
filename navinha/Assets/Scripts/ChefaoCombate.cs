@@ -17,6 +17,9 @@ public class ChefaoCombate : MonoBehaviour
     private int faseAnterior = -1;
     private SpriteRenderer visual;
     private Color corOriginal;
+    private Vector3 velocidadeSuavizacao;
+    private Sprite spriteBalaJogador;
+    private Vector3 escalaBalaJogador = new Vector3(.2f, .5f, 1f);
 
     private void Awake()
     {
@@ -31,6 +34,12 @@ public class ChefaoCombate : MonoBehaviour
     {
         Jogador p = FindFirstObjectByType<Jogador>();
         if (p != null) jogador = p.transform;
+        DisparoJogador disparo = FindFirstObjectByType<DisparoJogador>();
+        if (disparo != null)
+        {
+            spriteBalaJogador = disparo.SpriteBala;
+            escalaBalaJogador = disparo.EscalaBala;
+        }
         Trocar(true);
     }
 
@@ -84,7 +93,9 @@ public class ChefaoCombate : MonoBehaviour
             case 8: x += Mathf.PingPong(t * rapidez * 3.4f, amplitude * 2) - amplitude; break;
         }
         float y = origem.y + (tipo % 3 == 1 ? Mathf.Sin(t * rapidez * 2f) * .35f : 0);
-        transform.position = new Vector3(x, y, origem.z);
+        // Interpola entre padroes para evitar saltos nas trocas de estado.
+        Vector3 destino = new Vector3(x, y, origem.z);
+        transform.position = Vector3.SmoothDamp(transform.position, destino, ref velocidadeSuavizacao, .28f, 12f);
         // Variacao visual para evidenciar os estados sem depender de assets extras.
         if (visual != null) visual.color = Color.Lerp(corOriginal, Color.white, .12f + .18f * Mathf.Abs(Mathf.Sin(t * rapidez)));
         tempoTiro += Time.deltaTime;
@@ -109,10 +120,11 @@ public class ChefaoCombate : MonoBehaviour
             GameObject bala = new GameObject("Tiro Chefao");
             bala.transform.position = transform.position + Vector3.down * .65f;
             var sprite = bala.AddComponent<SpriteRenderer>();
-            sprite.sprite = SpritePadrao();
+            sprite.sprite = spriteBalaJogador != null ? spriteBalaJogador : SpritePadrao();
             sprite.color = tipo < 3 ? Color.yellow : tipo < 6 ? new Color(1, .5f, 0) : Color.red;
-            bala.transform.localScale = new Vector3(.16f, .3f, 1);
-            var col = bala.AddComponent<CircleCollider2D>();
+            bala.transform.localScale = escalaBalaJogador;
+            bala.transform.rotation = Quaternion.FromToRotation(Vector3.up, new Vector3(direcao.x, direcao.y, 0f));
+            var col = bala.AddComponent<BoxCollider2D>();
             col.isTrigger = true;
             var corpo = bala.AddComponent<Rigidbody2D>();
             corpo.bodyType = RigidbodyType2D.Kinematic;

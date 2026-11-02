@@ -38,7 +38,7 @@ public static class PrepararComportamentos
         }
 
         Scene atual = SceneManager.GetActiveScene();
-        if (atual.path != Cena || atual.isDirty) return;
+        if (atual.path != Cena) return;
         GameObject chefe = GameObject.Find("Chefão") ?? GameObject.Find("Chefao") ?? GameObject.Find("Chefao (alvo provisório)");
         if (chefe == null) return;
         Animator animator = chefe.GetComponent<Animator>();
@@ -53,7 +53,9 @@ public static class PrepararComportamentos
         if (mudou)
         {
             EditorSceneManager.MarkSceneDirty(atual);
-            EditorSceneManager.SaveScene(atual);
+            // Nao salvar automaticamente uma cena com alteracoes do usuario.
+            if (!EditorApplication.isPlayingOrWillChangePlaymode)
+                Debug.Log("Controller do chefao atribuido. Salve a cena para persistir a configuracao.");
         }
     }
 }

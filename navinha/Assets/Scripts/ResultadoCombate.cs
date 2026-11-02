@@ -14,30 +14,51 @@ public class ResultadoCombate : MonoBehaviour
     private GameObject painel;
     private TMP_Text titulo;
     private bool terminou;
+    private bool reiniciando;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void RegistrarCena()
+    {
+        SceneManager.sceneLoaded -= AoCarregarCena;
+        SceneManager.sceneLoaded += AoCarregarCena;
+    }
+
+    private static void AoCarregarCena(Scene cena, LoadSceneMode modo)
+    {
+        Preparar();
+    }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Preparar()
     {
-        if (FindAnyObjectByType<ResultadoCombate>() != null) return;
         Jogador jogador = FindAnyObjectByType<Jogador>();
         ChefaoAlvo chefao = FindAnyObjectByType<ChefaoAlvo>();
         if (jogador == null || chefao == null) return;
+        ResultadoCombate existente = FindAnyObjectByType<ResultadoCombate>();
+        if (existente != null)
+        {
+            existente.Conectar();
+            return;
+        }
         new GameObject("Resultado do Combate").AddComponent<ResultadoCombate>();
+    }
+
+    private void Conectar()
+    {
+        if (jogador != null) jogador.DerrotaOcorrida -= AoPerder;
+        if (chefao != null) chefao.VidaAlterada -= AoMudarVida;
+        jogador = FindAnyObjectByType<Jogador>();
+        chefao = FindAnyObjectByType<ChefaoAlvo>();
+        combate = chefao != null ? chefao.GetComponent<ChefaoCombate>() : null;
+        if (jogador != null) jogador.DerrotaOcorrida += AoPerder;
+        if (chefao != null) chefao.VidaAlterada += AoMudarVida;
     }
 
     private void Awake()
     {
         Time.timeScale = 1f;
-        jogador = FindAnyObjectByType<Jogador>();
-        chefao = FindAnyObjectByType<ChefaoAlvo>();
-        combate = chefao != null ? chefao.GetComponent<ChefaoCombate>() : null;
         CriarInterface();
-    }
-
-    private void OnEnable()
-    {
-        if (jogador != null) jogador.DerrotaOcorrida += AoPerder;
-        if (chefao != null) chefao.VidaAlterada += AoMudarVida;
+        Conectar();
     }
 
     private void Start()
@@ -60,7 +81,7 @@ public class ResultadoCombate : MonoBehaviour
 
     private void Mostrar(bool vitoria)
     {
-        if (terminou) return;
+        if (terminou || reiniciando) return;
         terminou = true;
         if (combate != null) combate.EncerrarCombate();
         if (painel != null) painel.SetActive(true);
@@ -74,8 +95,14 @@ public class ResultadoCombate : MonoBehaviour
 
     public void TentarNovamente()
     {
+        if (reiniciando) return;
+        reiniciando = true;
         Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        Scene cena = SceneManager.GetActiveScene();
+        // Funciona tambem quando a cena e aberta diretamente no Editor
+        // e nao possui indice nas Build Settings.
+        if (cena.buildIndex >= 0) SceneManager.LoadScene(cena.buildIndex);
+        else SceneManager.LoadScene(cena.path);
     }
 
     private void CriarInterface()
@@ -114,7 +141,7 @@ public class ResultadoCombate : MonoBehaviour
         titulo.enableAutoSizing = true;
         titulo.fontSizeMin = 30;
 
-        GameObject botaoObjeto = new GameObject("Tentar Novamente", typeof(RectTransform), typeof(Image), typeof(Button));
+        GameObject botaoObjeto = new GameObject("Reiniciar", typeof(RectTransform), typeof(Image), typeof(Button));
         botaoObjeto.transform.SetParent(painel.transform, false);
         RectTransform botaoRect = botaoObjeto.GetComponent<RectTransform>();
         botaoRect.anchorMin = botaoRect.anchorMax = new Vector2(.5f, .39f);
@@ -133,7 +160,7 @@ public class ResultadoCombate : MonoBehaviour
         rotuloRect.anchorMax = Vector2.one;
         rotuloRect.offsetMin = rotuloRect.offsetMax = Vector2.zero;
         TMP_Text rotulo = rotuloObjeto.GetComponent<TextMeshProUGUI>();
-        rotulo.text = "TENTAR NOVAMENTE";
+        rotulo.text = "REINICIAR";
         rotulo.fontSize = 42;
         rotulo.enableAutoSizing = true;
         rotulo.fontSizeMin = 18;

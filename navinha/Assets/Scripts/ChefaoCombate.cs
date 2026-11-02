@@ -14,6 +14,7 @@ public class ChefaoCombate : MonoBehaviour
     [SerializeField, Min(5)] private int quantidadeInicial = 45;
     [SerializeField, Min(10)] private int limiteTiros = 120;
     private ObjectPool<TiroChefao> pool;
+    private bool combateEncerrado;
     private bool emTransicao;
     private Coroutine rotinaTransicao;
     private ChefaoAlvo vida;
@@ -67,8 +68,18 @@ public class ChefaoCombate : MonoBehaviour
         Trocar(true);
     }
 
+    public void EncerrarCombate()
+    {
+        combateEncerrado = true;
+        if (rotinaTransicao != null) { StopCoroutine(rotinaTransicao); rotinaTransicao = null; }
+        emTransicao = false;
+        vida.DefinirInvulnerabilidade(false);
+        if (animator != null) animator.speed = 0f;
+    }
+
     private void Update()
     {
+        if (combateEncerrado) return;
         if (vida.Vida <= 0)
         {
             if (rotinaTransicao != null) { StopCoroutine(rotinaTransicao); rotinaTransicao = null; }
@@ -133,7 +144,7 @@ public class ChefaoCombate : MonoBehaviour
 
     public void Executar(int tipo)
     {
-        if (vida.Vida <= 0 || emTransicao || pool == null) return;
+        if (combateEncerrado || vida.Vida <= 0 || emTransicao || pool == null) return;
         tempoEstado += Time.deltaTime;
         float t = Time.time;
         float rapidez = tipo < 3 ? 1f : tipo < 6 ? 1.6f : 2.4f;
@@ -169,7 +180,7 @@ public class ChefaoCombate : MonoBehaviour
 
     private void Disparar(int tipo)
     {
-        if (jogador == null || pool == null || prefabTiro == null || emTransicao || vida.Vida <= 0) return;
+        if (combateEncerrado || jogador == null || pool == null || prefabTiro == null || emTransicao || vida.Vida <= 0) return;
         int quantidade = tipo < 3 ? 1 : tipo < 6 ? 3 : 5;
         float abertura = tipo < 3 ? 0 : tipo < 6 ? 20 : 35;
         Vector2 baseDir = (jogador.position - transform.position).normalized;

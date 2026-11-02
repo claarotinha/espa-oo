@@ -35,7 +35,7 @@ public static class CorrigirFase
         bool jaAberta = atual.path == cena;
         if (!jaAberta && atual.isDirty) return; // nao descartar edicoes nao salvas
         Scene jogo = jaAberta ? atual : EditorSceneManager.OpenScene(cena, OpenSceneMode.Single);
-        Jogador jogador = Object.FindFirstObjectByType<Jogador>();
+        Jogador jogador = Object.FindAnyObjectByType<Jogador>();
         if (jogador == null)
         {
             Debug.LogWarning("Nao encontrei Jogador na cena Jogo.");
@@ -57,7 +57,7 @@ public static class CorrigirFase
 
         Camera camera = Camera.main;
         if (camera != null) { camera.orthographic = true; camera.orthographicSize = 5f; }
-        ChefaoAlvo alvo = Object.FindFirstObjectByType<ChefaoAlvo>();
+        ChefaoAlvo alvo = Object.FindAnyObjectByType<ChefaoAlvo>();
         if (alvo == null)
         {
             GameObject chefe = GameObject.Find("Chefão");
@@ -69,10 +69,10 @@ public static class CorrigirFase
             }
         }
 
-        VidasUI ui = Object.FindFirstObjectByType<VidasUI>();
+        VidasUI ui = Object.FindAnyObjectByType<VidasUI>();
         if (ui == null)
         {
-            Canvas canvas = Object.FindFirstObjectByType<Canvas>();
+            Canvas canvas = Object.FindAnyObjectByType<Canvas>();
             if (canvas == null)
             {
                 GameObject c = new GameObject("Interface", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));

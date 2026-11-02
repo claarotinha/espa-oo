@@ -24,7 +24,16 @@ public class BarraVidaChefao : MonoBehaviour
         if (alvo == null || barra == null) return;
         barra.minValue = 0;
         barra.maxValue = alvo.VidaMaxima;
-        barra.value = alvo.Vida;
+        barra.SetValueWithoutNotify(alvo.Vida);
+        // Controla a largura diretamente: funciona mesmo com imagens sem sprite.
+        if (preenchimento != null)
+        {
+            RectTransform area = preenchimento.rectTransform;
+            area.anchorMin = new Vector2(0f, 0f);
+            area.anchorMax = new Vector2(alvo.PercentualVida, 1f);
+            area.offsetMin = new Vector2(3f, 3f);
+            area.offsetMax = new Vector2(-3f, -3f);
+        }
         if (preenchimento != null)
             preenchimento.color = alvo.Fase == FaseVidaChefao.Alta ? alta :
                                   alvo.Fase == FaseVidaChefao.Media ? media : baixa;

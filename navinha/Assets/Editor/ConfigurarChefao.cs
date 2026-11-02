@@ -18,7 +18,7 @@ public static class ConfigurarChefao
             return;
         }
         Scene cena = atual.path == caminho ? atual : EditorSceneManager.OpenScene(caminho, OpenSceneMode.Single);
-        ChefaoAlvo chefe = Object.FindFirstObjectByType<ChefaoAlvo>();
+        ChefaoAlvo chefe = Object.FindAnyObjectByType<ChefaoAlvo>();
         if (chefe == null)
         {
             GameObject obj = GameObject.Find("Chefão") ?? GameObject.Find("Chefao");
@@ -32,10 +32,10 @@ public static class ConfigurarChefao
         dados.FindProperty("vidaMaxima").intValue = 180;
         dados.ApplyModifiedPropertiesWithoutUndo();
 
-        BarraVidaChefao existente = Object.FindFirstObjectByType<BarraVidaChefao>();
+        BarraVidaChefao existente = Object.FindAnyObjectByType<BarraVidaChefao>();
         if (existente == null)
         {
-            Canvas canvas = Object.FindFirstObjectByType<Canvas>();
+            Canvas canvas = Object.FindAnyObjectByType<Canvas>();
             if (canvas == null)
             {
                 GameObject c = new GameObject("Canvas", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));

@@ -135,6 +135,8 @@ public class ChefaoCombate : MonoBehaviour
         {
             float angulo = quantidade == 1 ? 0 : Mathf.Lerp(-abertura, abertura, (float)i / (quantidade - 1));
             Vector2 direcao = Quaternion.Euler(0, 0, angulo) * baseDir;
+            // Nunca instanciar projeteis durante o ataque: usar apenas a reserva.
+            if (pool.CountInactive == 0) break;
             TiroChefao bala = pool.Get();
             if (bala == null) continue;
             bala.transform.position = transform.position + Vector3.down * .65f;

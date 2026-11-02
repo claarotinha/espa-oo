@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -10,6 +11,9 @@ public class Jogador : MonoBehaviour
     private Camera cameraJogo;
     private SpriteRenderer visual;
     private bool derrotado;
+    private Color corOriginal;
+    private Coroutine efeitoDano;
+    public event Action<Jogador> DanoRecebido;
     public int DanosRecebidos => danosRecebidos;
     public int DanosRestantes => Mathf.Max(0, danosSuportados - danosRecebidos);
     public bool Derrotado => derrotado;
@@ -19,6 +23,7 @@ public class Jogador : MonoBehaviour
     {
         cameraJogo = Camera.main;
         visual = GetComponent<SpriteRenderer>();
+        if (visual != null) corOriginal = visual.color;
     }
 
     private void Update()
@@ -46,6 +51,9 @@ public class Jogador : MonoBehaviour
     {
         if (derrotado) return;
         danosRecebidos++;
+        DanoRecebido?.Invoke(this);
+        if (efeitoDano != null) StopCoroutine(efeitoDano);
+        efeitoDano = StartCoroutine(PiscarDano());
         // Tres acertos sao suportados; a derrota acontece no quarto.
         if (danosRecebidos > danosSuportados)
         {
@@ -54,5 +62,23 @@ public class Jogador : MonoBehaviour
             Debug.Log("Navinha derrotada.");
             DerrotaOcorrida?.Invoke(this);
         }
+    }
+
+    private IEnumerator PiscarDano()
+    {
+        if (visual == null) yield break;
+        for (int i = 0; i < 4; i++)
+        {
+            visual.color = new Color(1f, .2f, .2f, 1f);
+            yield return new WaitForSeconds(.1f);
+            visual.color = corOriginal;
+            yield return new WaitForSeconds(.1f);
+        }
+        efeitoDano = null;
+    }
+
+    private void OnDisable()
+    {
+        if (visual != null) visual.color = corOriginal;
     }
 }

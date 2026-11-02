@@ -20,7 +20,7 @@ public class TiroChefao : MonoBehaviour
         devolver = retorno;
         tempoRestante = 7f;
         ativo = true;
-        if (alvo == null) alvo = FindFirstObjectByType<Jogador>();
+        if (alvo == null) alvo = FindAnyObjectByType<Jogador>();
         if (alvo != null)
         {
             colisorAlvo = alvo.GetComponentInChildren<Collider2D>();

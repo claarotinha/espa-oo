@@ -7,6 +7,7 @@ public class ChefaoAlvo : MonoBehaviour
 {
     [SerializeField, Min(1)] private int vidaMaxima = 180;
     [SerializeField] private int vidaAtual;
+    public bool Invulneravel { get; private set; }
     public int Vida => vidaAtual;
     public int VidaMaxima => vidaMaxima;
     public float PercentualVida => (float)vidaAtual / vidaMaxima;
@@ -21,11 +22,16 @@ public class ChefaoAlvo : MonoBehaviour
 
     public void ReceberDano(int dano)
     {
-        if (vidaAtual <= 0 || dano <= 0) return;
+        if (vidaAtual <= 0 || dano <= 0 || Invulneravel) return;
         vidaAtual = Mathf.Max(0, vidaAtual - dano);
         AtualizarFase();
         VidaAlterada?.Invoke(this);
         if (vidaAtual == 0) Debug.Log("Chefao derrotado!");
+    }
+
+    public void DefinirInvulnerabilidade(bool valor)
+    {
+        Invulneravel = valor && vidaAtual > 0;
     }
 
     private void AtualizarFase()

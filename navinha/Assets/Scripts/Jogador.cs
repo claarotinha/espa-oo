@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -12,6 +13,7 @@ public class Jogador : MonoBehaviour
     public int DanosRecebidos => danosRecebidos;
     public int DanosRestantes => Mathf.Max(0, danosSuportados - danosRecebidos);
     public bool Derrotado => derrotado;
+    public event Action<Jogador> DerrotaOcorrida;
 
     private void Awake()
     {
@@ -50,6 +52,7 @@ public class Jogador : MonoBehaviour
             derrotado = true;
             if (visual != null) visual.enabled = false;
             Debug.Log("Navinha derrotada.");
+            DerrotaOcorrida?.Invoke(this);
         }
     }
 }

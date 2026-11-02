@@ -28,8 +28,9 @@ public class TiroJogador : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D outro)
     {
         if (!ativo || outro.CompareTag("Player")) return;
-        // A integracao com a vida do chefao sera implementada na parte 4.
-        if (outro.TryGetComponent<ChefaoAlvo>(out var alvo)) alvo.ReceberDano(1);
+        // Tiros do jogador atravessam tiros inimigos e outros gatilhos.
+        if (!outro.TryGetComponent<ChefaoAlvo>(out var alvo)) return;
+        alvo.ReceberDano(1);
         Recolher();
     }
 

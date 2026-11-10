@@ -60,12 +60,19 @@ public static class PrepararComportamentos
                 clip.name = "Estado" + (i + 1).ToString("00");
                 clip.frameRate = 30f;
                 clip.wrapMode = WrapMode.Loop;
-                // Clip vazio: nao sobrescreve a posicao controlada pelo script.
+                // Curva neutra de 1 s: garante tempo de estado para Exit Time.
+                clip.SetCurve("", typeof(SpriteRenderer), "m_Color.a", AnimationCurve.Constant(0f, 1f, 1f));
                 AssetDatabase.CreateAsset(clip, caminhoClip);
             }
             if (Mathf.Abs(estado.speed - (1f / 3.5f)) > .0001f)
             {
                 estado.speed = 1f / 3.5f;
+                estadosAlterados = true;
+            }
+            if (clip.length < .99f)
+            {
+                clip.SetCurve("", typeof(SpriteRenderer), "m_Color.a", AnimationCurve.Constant(0f, 1f, 1f));
+                EditorUtility.SetDirty(clip);
                 estadosAlterados = true;
             }
             if (estado.motion != clip)

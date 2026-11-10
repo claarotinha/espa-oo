@@ -26,7 +26,7 @@ public class ChefaoAlvo : MonoBehaviour
         vidaAtual = Mathf.Max(0, vidaAtual - dano);
         AtualizarFase();
         VidaAlterada?.Invoke(this);
-        if (vidaAtual == 0) Debug.Log("Chefao derrotado!");
+        if (vidaAtual == 0) Debug.Log("ChefaoAlvo: vida chegou a ZERO; evento de vitoria enviado.", this);
     }
 
     public void DefinirInvulnerabilidade(bool valor)

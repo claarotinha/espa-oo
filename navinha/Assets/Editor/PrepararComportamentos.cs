@@ -28,6 +28,17 @@ public static class PrepararComportamentos
 
         var maquina = controller.layers[0].stateMachine;
         bool estadosAlterados = false;
+        AnimatorState[] estados = new AnimatorState[9];
+        if (!System.Array.Exists(controller.parameters, p => p.name == "FaseVida"))
+        {
+            controller.AddParameter("FaseVida", AnimatorControllerParameterType.Int);
+            estadosAlterados = true;
+        }
+        if (!System.Array.Exists(controller.parameters, p => p.name == "MudarFase"))
+        {
+            controller.AddParameter("MudarFase", AnimatorControllerParameterType.Trigger);
+            estadosAlterados = true;
+        }
         for (int i = 0; i < 9; i++)
         {
             string nome = "Comportamento" + (i + 1);
@@ -39,6 +50,7 @@ public static class PrepararComportamentos
                 estado = maquina.AddState(nome, new Vector3((i % 3) * 240, (i / 3) * 100, 0));
                 estadosAlterados = true;
             }
+            estados[i] = estado;
             // Estados sem Motion podem nao ser avaliados continuamente pelo Animator.
             string caminhoClip = Pasta + "/Estado" + (i + 1).ToString("00") + ".anim";
             AnimationClip clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(caminhoClip);
@@ -50,6 +62,11 @@ public static class PrepararComportamentos
                 clip.wrapMode = WrapMode.Loop;
                 // Clip vazio: nao sobrescreve a posicao controlada pelo script.
                 AssetDatabase.CreateAsset(clip, caminhoClip);
+            }
+            if (Mathf.Abs(estado.speed - (1f / 3.5f)) > .0001f)
+            {
+                estado.speed = 1f / 3.5f;
+                estadosAlterados = true;
             }
             if (estado.motion != clip)
             {
@@ -72,6 +89,44 @@ public static class PrepararComportamentos
                 maquina.defaultState = estado;
                 estadosAlterados = true;
             }
+        }
+        // Transicoes ciclicas sao configuradas no Animator, nao no script do chefe.
+        for (int i = 0; i < 9; i++)
+        {
+            AnimatorState origem = estados[i];
+            AnimatorState destino = estados[(i / 3) * 3 + (i + 1) % 3];
+            bool configurado = origem.transitions.Length == 1 &&
+                               origem.transitions[0].destinationState == destino &&
+                               origem.transitions[0].hasExitTime;
+            if (!configurado)
+            {
+                foreach (var antiga in origem.transitions) origem.RemoveTransition(antiga);
+                AnimatorStateTransition transicao = origem.AddTransition(destino);
+                transicao.hasExitTime = true;
+                transicao.exitTime = 1f;
+                transicao.duration = 0f;
+                transicao.hasFixedDuration = true;
+                estadosAlterados = true;
+            }
+        }
+        bool fasesConfiguradas = maquina.anyStateTransitions.Length == 2;
+        if (fasesConfiguradas)
+            fasesConfiguradas = maquina.anyStateTransitions[0].destinationState == estados[3] &&
+                                maquina.anyStateTransitions[1].destinationState == estados[6];
+        if (!fasesConfiguradas)
+        {
+            foreach (var antiga in maquina.anyStateTransitions) maquina.RemoveAnyStateTransition(antiga);
+            for (int fase = 1; fase <= 2; fase++)
+            {
+                AnimatorStateTransition transicao = maquina.AddAnyStateTransition(estados[fase * 3]);
+                transicao.hasExitTime = false;
+                transicao.duration = 0f;
+                transicao.hasFixedDuration = true;
+                transicao.canTransitionToSelf = false;
+                transicao.AddCondition(AnimatorConditionMode.If, 0f, "MudarFase");
+                transicao.AddCondition(AnimatorConditionMode.Equals, fase, "FaseVida");
+            }
+            estadosAlterados = true;
         }
         if (estadosAlterados) AssetDatabase.SaveAssets();
 

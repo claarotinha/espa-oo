@@ -13,6 +13,9 @@ public class ResultadoCombate : MonoBehaviour
     private ChefaoCombate combate;
     private GameObject painel;
     private TMP_Text titulo;
+    private TMP_Text subtitulo;
+    private Image fundoResultado;
+    private Image fundoBotao;
     private bool terminou;
     private bool reiniciando;
 
@@ -85,6 +88,9 @@ public class ResultadoCombate : MonoBehaviour
         terminou = true;
         if (combate != null) combate.EncerrarCombate();
         if (painel != null) painel.SetActive(true);
+        if (fundoResultado != null) fundoResultado.color = vitoria ? new Color(.025f, .14f, .13f, .97f) : new Color(.14f, .035f, .07f, .97f);
+        if (fundoBotao != null) fundoBotao.color = vitoria ? new Color(.13f, .52f, .38f) : new Color(.55f, .16f, .22f);
+        if (subtitulo != null) subtitulo.text = vitoria ? "VOCE DERROTOU O CHEFAO!" : "SUA NAVINHA FOI DESTRUIDA";
         if (titulo != null)
         {
             titulo.text = vitoria ? "VITORIA!" : "DERROTA!";
@@ -127,7 +133,8 @@ public class ResultadoCombate : MonoBehaviour
         fundo.anchorMin = Vector2.zero;
         fundo.anchorMax = Vector2.one;
         fundo.offsetMin = fundo.offsetMax = Vector2.zero;
-        painel.GetComponent<Image>().color = new Color(.04f, .06f, .14f, .94f);
+        fundoResultado = painel.GetComponent<Image>();
+        fundoResultado.color = new Color(.04f, .06f, .14f, .94f);
 
         GameObject textoObjeto = new GameObject("Titulo", typeof(RectTransform), typeof(TextMeshProUGUI));
         textoObjeto.transform.SetParent(painel.transform, false);
@@ -140,6 +147,22 @@ public class ResultadoCombate : MonoBehaviour
         titulo.alignment = TextAlignmentOptions.Center;
         titulo.enableAutoSizing = true;
         titulo.fontSizeMin = 30;
+        titulo.color = Color.white;
+        titulo.raycastTarget = false;
+
+        GameObject subtituloObjeto = new GameObject("Mensagem Resultado", typeof(RectTransform), typeof(TextMeshProUGUI));
+        subtituloObjeto.transform.SetParent(painel.transform, false);
+        RectTransform subtituloRect = subtituloObjeto.GetComponent<RectTransform>();
+        subtituloRect.anchorMin = new Vector2(.12f, .46f);
+        subtituloRect.anchorMax = new Vector2(.88f, .55f);
+        subtituloRect.offsetMin = subtituloRect.offsetMax = Vector2.zero;
+        subtitulo = subtituloObjeto.GetComponent<TextMeshProUGUI>();
+        subtitulo.fontSize = 36;
+        subtitulo.enableAutoSizing = true;
+        subtitulo.fontSizeMin = 18;
+        subtitulo.color = Color.white;
+        subtitulo.alignment = TextAlignmentOptions.Center;
+        subtitulo.raycastTarget = false;
 
         GameObject botaoObjeto = new GameObject("Reiniciar", typeof(RectTransform), typeof(Image), typeof(Button));
         botaoObjeto.transform.SetParent(painel.transform, false);
@@ -148,6 +171,7 @@ public class ResultadoCombate : MonoBehaviour
         botaoRect.sizeDelta = new Vector2(440, 110);
         botaoRect.anchoredPosition = Vector2.zero;
         Image imagemBotao = botaoObjeto.GetComponent<Image>();
+        fundoBotao = imagemBotao;
         imagemBotao.color = new Color(.15f, .42f, .75f);
         Button botao = botaoObjeto.GetComponent<Button>();
         botao.targetGraphic = imagemBotao;

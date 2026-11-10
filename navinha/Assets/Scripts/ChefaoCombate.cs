@@ -21,7 +21,6 @@ public class ChefaoCombate : MonoBehaviour
     private Animator animator;
     private Transform jogador;
     private Vector3 origem;
-    private int estadoAtual = -1;
     private float tempoTiro;
     private int faseAnterior = -1;
     private SpriteRenderer visual;
@@ -80,7 +79,7 @@ public class ChefaoCombate : MonoBehaviour
             enabled = false;
             return;
         }
-        animator.Play("Comportamento1", 0, 0f);
+        animator.SetInteger("FaseVida", 0);
     }
 
     public void EncerrarCombate()
@@ -102,13 +101,11 @@ public class ChefaoCombate : MonoBehaviour
     }
 
     public bool PodeAgir => !combateEncerrado && !emTransicao && vida != null && vida.Vida > 0 && pool != null;
-    public float DuracaoEstado => duracaoComportamento;
     public float Amplitude => amplitudeMovimento;
     public Vector3 Origem => origem;
 
     public void IniciarEstado(int numero)
     {
-        estadoAtual = numero;
         tempoTiro = 0f;
     }
 
@@ -127,13 +124,6 @@ public class ChefaoCombate : MonoBehaviour
         if (tempoTiro < intervalo) return;
         tempoTiro = 0f;
         Disparar(quantidade, abertura, velocidade, cor);
-    }
-
-    public void ProximoEstado(int numero)
-    {
-        if (!PodeAgir || estadoAtual != numero) return;
-        int proximo = (numero / 3) * 3 + (numero + 1) % 3;
-        animator.Play("Comportamento" + (proximo + 1), 0, 0f);
     }
 
     private IEnumerator Transicionar()
@@ -159,7 +149,8 @@ public class ChefaoCombate : MonoBehaviour
         emTransicao = false;
         rotinaTransicao = null;
         faseAnterior = IndiceFase();
-        animator.Play("Comportamento" + (faseAnterior * 3 + 1), 0, 0f);
+        animator.SetInteger("FaseVida", faseAnterior);
+        animator.SetTrigger("MudarFase");
     }
 
     private int IndiceFase() => vida.Fase == FaseVidaChefao.Alta ? 0 :

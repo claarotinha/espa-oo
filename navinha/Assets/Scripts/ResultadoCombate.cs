@@ -64,6 +64,14 @@ public class ResultadoCombate : MonoBehaviour
         Conectar();
     }
 
+    private void Update()
+    {
+        if (terminou || reiniciando) return;
+        if (chefao == null || jogador == null) Conectar();
+        if (chefao != null && chefao.Vida <= 0) Mostrar(true);
+        else if (jogador != null && jogador.Derrotado) Mostrar(false);
+    }
+
     private void Start()
     {
         if (chefao != null && chefao.Vida <= 0) Mostrar(true);
@@ -85,6 +93,7 @@ public class ResultadoCombate : MonoBehaviour
     private void Mostrar(bool vitoria)
     {
         if (terminou || reiniciando) return;
+        if (painel == null) CriarInterface();
         terminou = true;
         if (combate != null) combate.EncerrarCombate();
         if (painel != null) painel.SetActive(true);

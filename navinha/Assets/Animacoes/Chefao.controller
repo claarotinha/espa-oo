@@ -9,10 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba712a006cdb4ef78c50b2a0d0cae101, type: 3}
+  m_Script: {fileID: 11500000, guid: a72c8e9b01f34d56bca000000000005, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ComportamentoChefao
-  tipo: 4
+  m_EditorClassIdentifier: Assembly-CSharp::Comportamento05
 --- !u!114 &-7796590397704822143
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -22,10 +21,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba712a006cdb4ef78c50b2a0d0cae101, type: 3}
+  m_Script: {fileID: 11500000, guid: a72c8e9b01f34d56bca000000000006, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ComportamentoChefao
-  tipo: 5
+  m_EditorClassIdentifier: Assembly-CSharp::Comportamento06
 --- !u!114 &-7746582559263020792
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -35,10 +33,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba712a006cdb4ef78c50b2a0d0cae101, type: 3}
+  m_Script: {fileID: 11500000, guid: a72c8e9b01f34d56bca000000000001, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ComportamentoChefao
-  tipo: 0
+  m_EditorClassIdentifier: Assembly-CSharp::Comportamento01
 --- !u!114 &-7367250711152713086
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -48,10 +45,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba712a006cdb4ef78c50b2a0d0cae101, type: 3}
+  m_Script: {fileID: 11500000, guid: a72c8e9b01f34d56bca000000000003, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ComportamentoChefao
-  tipo: 2
+  m_EditorClassIdentifier: Assembly-CSharp::Comportamento03
 --- !u!1102 &-5453429321335926899
 AnimatorState:
   serializedVersion: 6
@@ -161,10 +157,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba712a006cdb4ef78c50b2a0d0cae101, type: 3}
+  m_Script: {fileID: 11500000, guid: a72c8e9b01f34d56bca000000000009, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ComportamentoChefao
-  tipo: 8
+  m_EditorClassIdentifier: Assembly-CSharp::Comportamento09
 --- !u!1102 &-1231363039689634640
 AnimatorState:
   serializedVersion: 6
@@ -251,10 +246,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba712a006cdb4ef78c50b2a0d0cae101, type: 3}
+  m_Script: {fileID: 11500000, guid: a72c8e9b01f34d56bca000000000002, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ComportamentoChefao
-  tipo: 1
+  m_EditorClassIdentifier: Assembly-CSharp::Comportamento02
 --- !u!1102 &735826415085007903
 AnimatorState:
   serializedVersion: 6
@@ -291,10 +285,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba712a006cdb4ef78c50b2a0d0cae101, type: 3}
+  m_Script: {fileID: 11500000, guid: a72c8e9b01f34d56bca000000000004, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ComportamentoChefao
-  tipo: 3
+  m_EditorClassIdentifier: Assembly-CSharp::Comportamento04
 --- !u!1102 &1700065278979894868
 AnimatorState:
   serializedVersion: 6
@@ -331,10 +324,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba712a006cdb4ef78c50b2a0d0cae101, type: 3}
+  m_Script: {fileID: 11500000, guid: a72c8e9b01f34d56bca000000000008, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ComportamentoChefao
-  tipo: 7
+  m_EditorClassIdentifier: Assembly-CSharp::Comportamento08
 --- !u!114 &5445366344959771082
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -344,10 +336,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba712a006cdb4ef78c50b2a0d0cae101, type: 3}
+  m_Script: {fileID: 11500000, guid: a72c8e9b01f34d56bca000000000007, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ComportamentoChefao
-  tipo: 6
+  m_EditorClassIdentifier: Assembly-CSharp::Comportamento07
 --- !u!1102 &5869957223334579672
 AnimatorState:
   serializedVersion: 6

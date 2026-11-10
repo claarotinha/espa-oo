@@ -24,18 +24,38 @@ public static class PrepararComportamentos
         if (!AssetDatabase.IsValidFolder(Pasta)) AssetDatabase.CreateFolder("Assets", "Animacoes");
         AnimatorController controller = AssetDatabase.LoadAssetAtPath<AnimatorController>(Caminho);
         if (controller == null)
-        {
             controller = AnimatorController.CreateAnimatorControllerAtPath(Caminho);
-            var maquina = controller.layers[0].stateMachine;
-            for (int i = 0; i < 9; i++)
+
+        var maquina = controller.layers[0].stateMachine;
+        bool estadosAlterados = false;
+        for (int i = 0; i < 9; i++)
+        {
+            string nome = "Comportamento" + (i + 1);
+            AnimatorState estado = null;
+            foreach (var filho in maquina.states)
+                if (filho.state.name == nome) { estado = filho.state; break; }
+            if (estado == null)
             {
-                var estado = maquina.AddState("Comportamento" + (i + 1), new Vector3((i % 3) * 240, (i / 3) * 100, 0));
-                var comportamento = estado.AddStateMachineBehaviour<ComportamentoChefao>();
-                comportamento.tipo = i;
-                if (i == 0) maquina.defaultState = estado;
+                estado = maquina.AddState(nome, new Vector3((i % 3) * 240, (i / 3) * 100, 0));
+                estadosAlterados = true;
             }
-            AssetDatabase.SaveAssets();
+            System.Type esperado = TipoEstado(i);
+            bool correto = estado.behaviours.Length == 1 && estado.behaviours[0] != null &&
+                           estado.behaviours[0].GetType() == esperado;
+            if (!correto)
+            {
+                foreach (var antigo in estado.behaviours)
+                    if (antigo != null) Object.DestroyImmediate(antigo, true);
+                estado.AddStateMachineBehaviour(esperado);
+                estadosAlterados = true;
+            }
+            if (i == 0 && maquina.defaultState != estado)
+            {
+                maquina.defaultState = estado;
+                estadosAlterados = true;
+            }
         }
+        if (estadosAlterados) AssetDatabase.SaveAssets();
 
         Scene atual = SceneManager.GetActiveScene();
         if (atual.path != Cena) return;
@@ -58,5 +78,21 @@ public static class PrepararComportamentos
                 Debug.Log("Controller do chefao atribuido. Salve a cena para persistir a configuracao.");
         }
     }
+    private static System.Type TipoEstado(int indice)
+    {
+        switch (indice)
+        {
+            case 0: return typeof(Comportamento01);
+            case 1: return typeof(Comportamento02);
+            case 2: return typeof(Comportamento03);
+            case 3: return typeof(Comportamento04);
+            case 4: return typeof(Comportamento05);
+            case 5: return typeof(Comportamento06);
+            case 6: return typeof(Comportamento07);
+            case 7: return typeof(Comportamento08);
+            default: return typeof(Comportamento09);
+        }
+    }
+
 }
 #endif

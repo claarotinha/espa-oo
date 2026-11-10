@@ -94,9 +94,12 @@ public class ResultadoCombate : MonoBehaviour
     {
         if (terminou || reiniciando) return;
         if (painel == null) CriarInterface();
+        if (painel == null) { Debug.LogError("ResultadoCombate: painel nao foi criado no Canvas.", this); return; }
+        Debug.Log(vitoria ? "ResultadoCombate: VITORIA - vida do chefao zerada." : "ResultadoCombate: DERROTA - navinha perdeu a quarta vida.", this);
         terminou = true;
         if (combate != null) combate.EncerrarCombate();
-        if (painel != null) painel.SetActive(true);
+        painel.transform.SetAsLastSibling();
+        painel.SetActive(true);
         if (fundoResultado != null) fundoResultado.color = vitoria ? new Color(.025f, .14f, .13f, .97f) : new Color(.14f, .035f, .07f, .97f);
         if (fundoBotao != null) fundoBotao.color = vitoria ? new Color(.13f, .52f, .38f) : new Color(.55f, .16f, .22f);
         if (subtitulo != null) subtitulo.text = vitoria ? "VOCE DERROTOU O CHEFAO!" : "SUA NAVINHA FOI DESTRUIDA";
@@ -140,21 +143,22 @@ public class ResultadoCombate : MonoBehaviour
         painel = new GameObject("Painel Resultado", typeof(RectTransform), typeof(Image));
         painel.transform.SetParent(canvasObjeto, false);
         painel.transform.SetAsLastSibling();
+        painel.layer = 5;
         RectTransform fundo = painel.GetComponent<RectTransform>();
         fundo.anchorMin = Vector2.zero;
         fundo.anchorMax = Vector2.one;
         fundo.offsetMin = fundo.offsetMax = Vector2.zero;
         fundoResultado = painel.GetComponent<Image>();
-        fundoResultado.color = new Color(.04f, .06f, .14f, .94f);
+        fundoResultado.color = new Color(.035f, .055f, .12f, .96f);
 
         GameObject textoObjeto = new GameObject("Titulo", typeof(RectTransform), typeof(TextMeshProUGUI));
         textoObjeto.transform.SetParent(painel.transform, false);
         RectTransform textoRect = textoObjeto.GetComponent<RectTransform>();
-        textoRect.anchorMin = new Vector2(.12f, .57f);
-        textoRect.anchorMax = new Vector2(.88f, .72f);
-        textoRect.offsetMin = textoRect.offsetMax = Vector2.zero;
+        textoRect.anchorMin = textoRect.anchorMax = new Vector2(.5f, .5f);
+        textoRect.sizeDelta = new Vector2(700, 100);
+        textoRect.anchoredPosition = new Vector2(0, 100);
         titulo = textoObjeto.GetComponent<TextMeshProUGUI>();
-        titulo.fontSize = 64;
+        titulo.fontSize = 58;
         titulo.alignment = TextAlignmentOptions.Center;
         titulo.enableAutoSizing = true;
         titulo.fontSizeMin = 30;
@@ -164,9 +168,9 @@ public class ResultadoCombate : MonoBehaviour
         GameObject subtituloObjeto = new GameObject("Mensagem Resultado", typeof(RectTransform), typeof(TextMeshProUGUI));
         subtituloObjeto.transform.SetParent(painel.transform, false);
         RectTransform subtituloRect = subtituloObjeto.GetComponent<RectTransform>();
-        subtituloRect.anchorMin = new Vector2(.12f, .48f);
-        subtituloRect.anchorMax = new Vector2(.88f, .57f);
-        subtituloRect.offsetMin = subtituloRect.offsetMax = Vector2.zero;
+        subtituloRect.anchorMin = subtituloRect.anchorMax = new Vector2(.5f, .5f);
+        subtituloRect.sizeDelta = new Vector2(700, 65);
+        subtituloRect.anchoredPosition = new Vector2(0, 20);
         subtitulo = subtituloObjeto.GetComponent<TextMeshProUGUI>();
         subtitulo.fontSize = 26;
         subtitulo.enableAutoSizing = true;
@@ -178,9 +182,9 @@ public class ResultadoCombate : MonoBehaviour
         GameObject botaoObjeto = new GameObject("Reiniciar", typeof(RectTransform), typeof(Image), typeof(Button));
         botaoObjeto.transform.SetParent(painel.transform, false);
         RectTransform botaoRect = botaoObjeto.GetComponent<RectTransform>();
-        botaoRect.anchorMin = botaoRect.anchorMax = new Vector2(.5f, .34f);
-        botaoRect.sizeDelta = new Vector2(260, 64);
-        botaoRect.anchoredPosition = Vector2.zero;
+        botaoRect.anchorMin = botaoRect.anchorMax = new Vector2(.5f, .5f);
+        botaoRect.sizeDelta = new Vector2(250, 62);
+        botaoRect.anchoredPosition = new Vector2(0, -95);
         Image imagemBotao = botaoObjeto.GetComponent<Image>();
         fundoBotao = imagemBotao;
         imagemBotao.color = new Color(.15f, .42f, .75f);
@@ -197,7 +201,7 @@ public class ResultadoCombate : MonoBehaviour
         rotuloRect.offsetMax = new Vector2(-14, -7);
         TMP_Text rotulo = rotuloObjeto.GetComponent<TextMeshProUGUI>();
         rotulo.text = "REINICIAR";
-        rotulo.fontSize = 26;
+        rotulo.fontSize = 24;
         rotulo.enableAutoSizing = true;
         rotulo.fontSizeMin = 16;
         rotulo.color = Color.white;

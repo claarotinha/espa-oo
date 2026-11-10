@@ -21,10 +21,8 @@ public class ChefaoCombate : MonoBehaviour
     private Animator animator;
     private Transform jogador;
     private Vector3 origem;
-    private float tempoEstado, tempoTiro;
-    private int tipoAtual;
-    private bool animadorDisponivel;
-    private int anterior = -1;
+    private int estadoAtual = -1;
+    private float tempoTiro;
     private int faseAnterior = -1;
     private SpriteRenderer visual;
     private Color corOriginal;
@@ -74,9 +72,15 @@ public class ChefaoCombate : MonoBehaviour
         TiroChefao[] reserva = new TiroChefao[quantidadeInicial];
         for (int i = 0; i < reserva.Length; i++) reserva[i] = pool.Get();
         for (int i = 0; i < reserva.Length; i++) pool.Release(reserva[i]);
-        animadorDisponivel = animator != null && animator.runtimeAnimatorController != null;
-        // Sem Controller, os nove comportamentos continuam funcionando por codigo.
-        Trocar(true);
+        vida.VidaAlterada += AoAlterarVida;
+        faseAnterior = IndiceFase();
+        if (animator == null || animator.runtimeAnimatorController == null)
+        {
+            Debug.LogError("Chefao: atribua o Animator Controller com os nove estados.", this);
+            enabled = false;
+            return;
+        }
+        animator.Play("Comportamento1", 0, 0f);
     }
 
     public void EncerrarCombate()
@@ -88,26 +92,48 @@ public class ChefaoCombate : MonoBehaviour
         if (animator != null) animator.speed = 0f;
     }
 
-    private void Update()
+    private void AoAlterarVida(ChefaoAlvo alvo)
     {
         if (combateEncerrado) return;
-        if (vida.Vida <= 0)
-        {
-            if (rotinaTransicao != null) { StopCoroutine(rotinaTransicao); rotinaTransicao = null; }
-            emTransicao = false;
-            vida.DefinirInvulnerabilidade(false);
-            animator.speed = 0;
-            return;
-        }
-        if (emTransicao) return;
-        if (!animadorDisponivel) Executar(tipoAtual);
+        if (alvo.Vida <= 0) { EncerrarCombate(); return; }
         int fase = IndiceFase();
-        if (fase != faseAnterior)
-        {
+        if (fase != faseAnterior && !emTransicao)
             rotinaTransicao = StartCoroutine(Transicionar());
-            return;
-        }
-        if (tempoEstado >= duracaoComportamento) Trocar(false);
+    }
+
+    public bool PodeAgir => !combateEncerrado && !emTransicao && vida != null && vida.Vida > 0 && pool != null;
+    public float DuracaoEstado => duracaoComportamento;
+    public float Amplitude => amplitudeMovimento;
+    public Vector3 Origem => origem;
+
+    public void IniciarEstado(int numero)
+    {
+        estadoAtual = numero;
+        tempoTiro = 0f;
+    }
+
+    public void Mover(Vector3 destino)
+    {
+        if (!PodeAgir) return;
+        transform.position = Vector3.SmoothDamp(transform.position, destino, ref velocidadeSuavizacao, .28f, 12f);
+        if (visual != null)
+            visual.color = Color.Lerp(corOriginal, Color.white, .12f + .18f * Mathf.Abs(Mathf.Sin(Time.time * 2f)));
+    }
+
+    public void Atacar(float intervalo, int quantidade, float abertura, float velocidade, Color cor)
+    {
+        if (!PodeAgir) return;
+        tempoTiro += Time.deltaTime;
+        if (tempoTiro < intervalo) return;
+        tempoTiro = 0f;
+        Disparar(quantidade, abertura, velocidade, cor);
+    }
+
+    public void ProximoEstado(int numero)
+    {
+        if (!PodeAgir || estadoAtual != numero) return;
+        int proximo = (numero / 3) * 3 + (numero + 1) % 3;
+        animator.Play("Comportamento" + (proximo + 1), 0, 0f);
     }
 
     private IEnumerator Transicionar()
@@ -132,79 +158,21 @@ public class ChefaoCombate : MonoBehaviour
         animator.speed = 1f;
         emTransicao = false;
         rotinaTransicao = null;
-        Trocar(true);
+        faseAnterior = IndiceFase();
+        animator.Play("Comportamento" + (faseAnterior * 3 + 1), 0, 0f);
     }
 
     private int IndiceFase() => vida.Fase == FaseVidaChefao.Alta ? 0 :
                                  vida.Fase == FaseVidaChefao.Media ? 1 : 2;
 
-    private void Trocar(bool mudouFase)
+    private void Disparar(int quantidade, float abertura, float velocidade, Color cor)
     {
-        int fase = IndiceFase();
-        int proximo = fase * 3 + (mudouFase ? 0 : (anterior % 3 + 1) % 3);
-        anterior = proximo;
-        faseAnterior = fase;
-        tempoEstado = 0;
-        tipoAtual = proximo;
-        Iniciar(proximo);
-        if (animadorDisponivel) animator.Play("Comportamento" + (proximo + 1), 0, 0f);
-    }
-
-    public void Iniciar(int tipo)
-    {
-        tipoAtual = tipo;
-        tempoEstado = 0;
-        tempoTiro = 0;
-    }
-
-    public void Executar(int tipo)
-    {
-        if (animadorDisponivel == false && tipo != tipoAtual) return;
-        if (combateEncerrado || vida.Vida <= 0 || emTransicao || pool == null) return;
-        tempoEstado += Time.deltaTime;
-        float t = Time.time;
-        float rapidez = tipo < 3 ? 1f : tipo < 6 ? 1.6f : 2.4f;
-        float amplitude = amplitudeMovimento;
-        float x = origem.x;
-        // 9 padroes de movimento distintos.
-        switch (tipo)
-        {
-            case 0: x += Mathf.Sin(t * rapidez) * amplitude * .45f; break;
-            case 1: x += Mathf.Sin(t * rapidez * 1.5f) * amplitude * .75f; break;
-            case 2: x += Mathf.PingPong(t * rapidez * 1.5f, amplitude * 2) - amplitude; break;
-            case 3: x += Mathf.Sin(t * rapidez * 2f) * amplitude; break;
-            case 4: x += Mathf.Sin(t * rapidez) * Mathf.Cos(t * rapidez * 2f) * amplitude; break;
-            case 5: x += Mathf.PingPong(t * rapidez * 2.4f, amplitude * 2) - amplitude; break;
-            case 6: x += Mathf.Sin(t * rapidez * 2.6f) * amplitude; break;
-            case 7: x += Mathf.Sin(t * rapidez * 3.3f) * amplitude * .85f; break;
-            case 8: x += Mathf.PingPong(t * rapidez * 3.4f, amplitude * 2) - amplitude; break;
-        }
-        float y = origem.y + (tipo % 3 == 1 ? Mathf.Sin(t * rapidez * 2f) * .35f : 0);
-        // Interpola entre padroes para evitar saltos nas trocas de estado.
-        Vector3 destino = new Vector3(x, y, origem.z);
-        transform.position = Vector3.SmoothDamp(transform.position, destino, ref velocidadeSuavizacao, .28f, 12f);
-        // Variacao visual para evidenciar os estados sem depender de assets extras.
-        if (visual != null) visual.color = Color.Lerp(corOriginal, Color.white, .12f + .18f * Mathf.Abs(Mathf.Sin(t * rapidez)));
-        tempoTiro += Time.deltaTime;
-        float intervalo = tipo < 3 ? 1.5f : tipo < 6 ? .95f : .55f;
-        if (tempoTiro >= intervalo)
-        {
-            tempoTiro = 0;
-            Disparar(tipo);
-        }
-    }
-
-    private void Disparar(int tipo)
-    {
-        if (combateEncerrado || jogador == null || pool == null || prefabTiro == null || emTransicao || vida.Vida <= 0) return;
-        int quantidade = tipo < 3 ? 1 : tipo < 6 ? 3 : 5;
-        float abertura = tipo < 3 ? 0 : tipo < 6 ? 20 : 35;
+        if (!PodeAgir || jogador == null || prefabTiro == null) return;
         Vector2 baseDir = (jogador.position - transform.position).normalized;
         for (int i = 0; i < quantidade; i++)
         {
             float angulo = quantidade == 1 ? 0 : Mathf.Lerp(-abertura, abertura, (float)i / (quantidade - 1));
             Vector2 direcao = Quaternion.Euler(0, 0, angulo) * baseDir;
-            // Nunca instanciar projeteis durante o ataque: usar apenas a reserva.
             if (pool.CountInactive == 0) break;
             TiroChefao bala = pool.Get();
             if (bala == null) continue;
@@ -214,9 +182,9 @@ public class ChefaoCombate : MonoBehaviour
             if (sprite != null)
             {
                 if (spriteBalaJogador != null) sprite.sprite = spriteBalaJogador;
-                sprite.color = tipo < 3 ? Color.yellow : tipo < 6 ? new Color(1f, .5f, 0f) : Color.red;
+                sprite.color = cor;
             }
-            bala.Iniciar(direcao, tipo < 3 ? 4f : tipo < 6 ? 5.5f : 7f, DevolverTiro);
+            bala.Iniciar(direcao, velocidade, DevolverTiro);
         }
     }
 
@@ -228,6 +196,7 @@ public class ChefaoCombate : MonoBehaviour
 
     private void OnDisable()
     {
+        if (vida != null) vida.VidaAlterada -= AoAlterarVida;
         if (vida != null) vida.DefinirInvulnerabilidade(false);
         if (animator != null) animator.speed = 1f;
     }
@@ -238,18 +207,7 @@ public class ChefaoCombate : MonoBehaviour
         pool = null;
     }
 
-    private static Sprite spriteCache;
-    private static Sprite SpritePadrao()
-    {
-        if (spriteCache == null)
-        {
-            Texture2D tex = Texture2D.whiteTexture;
-            spriteCache = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(.5f, .5f), 1);
-        }
-        return spriteCache;
-    }
-
-    public void Encerrar()
+    public void EncerrarEstado()
     {
         if (visual != null && !emTransicao) visual.color = corOriginal;
     }

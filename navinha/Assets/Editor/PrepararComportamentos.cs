@@ -39,7 +39,8 @@ public static class PrepararComportamentos
                 estado = maquina.AddState(nome, new Vector3((i % 3) * 240, (i / 3) * 100, 0));
                 estadosAlterados = true;
             }
-            System.Type esperado = TipoEstado(i);
+            System.Type esperado = System.Type.GetType("Comportamento" + (i + 1).ToString("00") + ", Assembly-CSharp");
+            if (esperado == null) continue; // Aguarda a compilacao/importacao dos scripts de estado.
             bool correto = estado.behaviours.Length == 1 && estado.behaviours[0] != null &&
                            estado.behaviours[0].GetType() == esperado;
             if (!correto)
@@ -78,21 +79,5 @@ public static class PrepararComportamentos
                 Debug.Log("Controller do chefao atribuido. Salve a cena para persistir a configuracao.");
         }
     }
-    private static System.Type TipoEstado(int indice)
-    {
-        switch (indice)
-        {
-            case 0: return typeof(Comportamento01);
-            case 1: return typeof(Comportamento02);
-            case 2: return typeof(Comportamento03);
-            case 3: return typeof(Comportamento04);
-            case 4: return typeof(Comportamento05);
-            case 5: return typeof(Comportamento06);
-            case 6: return typeof(Comportamento07);
-            case 7: return typeof(Comportamento08);
-            default: return typeof(Comportamento09);
-        }
-    }
-
 }
 #endif

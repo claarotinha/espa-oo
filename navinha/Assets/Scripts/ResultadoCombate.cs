@@ -127,17 +127,19 @@ public class ResultadoCombate : MonoBehaviour
             GameObject eventos = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
         }
 
-        GameObject canvasObjeto = new GameObject("Canvas Resultado", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
-        canvasObjeto.transform.SetParent(transform, false);
-        Canvas canvas = canvasObjeto.GetComponent<Canvas>();
-        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        canvas.sortingOrder = 100;
-        CanvasScaler scaler = canvasObjeto.GetComponent<CanvasScaler>();
-        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920, 1080);
+        // Usa o Canvas da cena, deixando o painel visivel e editavel na Hierarchy.
+        Canvas canvas = GetComponent<Canvas>();
+        if (canvas == null) canvas = GetComponentInParent<Canvas>();
+        if (canvas == null)
+        {
+            Debug.LogError("ResultadoCombate deve estar no Canvas da cena.", this);
+            return;
+        }
+        Transform canvasObjeto = canvas.transform;
 
         painel = new GameObject("Painel Resultado", typeof(RectTransform), typeof(Image));
-        painel.transform.SetParent(canvasObjeto.transform, false);
+        painel.transform.SetParent(canvasObjeto, false);
+        painel.transform.SetAsLastSibling();
         RectTransform fundo = painel.GetComponent<RectTransform>();
         fundo.anchorMin = Vector2.zero;
         fundo.anchorMax = Vector2.one;
@@ -148,11 +150,11 @@ public class ResultadoCombate : MonoBehaviour
         GameObject textoObjeto = new GameObject("Titulo", typeof(RectTransform), typeof(TextMeshProUGUI));
         textoObjeto.transform.SetParent(painel.transform, false);
         RectTransform textoRect = textoObjeto.GetComponent<RectTransform>();
-        textoRect.anchorMin = new Vector2(.15f, .52f);
-        textoRect.anchorMax = new Vector2(.85f, .7f);
+        textoRect.anchorMin = new Vector2(.12f, .57f);
+        textoRect.anchorMax = new Vector2(.88f, .72f);
         textoRect.offsetMin = textoRect.offsetMax = Vector2.zero;
         titulo = textoObjeto.GetComponent<TextMeshProUGUI>();
-        titulo.fontSize = 90;
+        titulo.fontSize = 64;
         titulo.alignment = TextAlignmentOptions.Center;
         titulo.enableAutoSizing = true;
         titulo.fontSizeMin = 30;
@@ -162,11 +164,11 @@ public class ResultadoCombate : MonoBehaviour
         GameObject subtituloObjeto = new GameObject("Mensagem Resultado", typeof(RectTransform), typeof(TextMeshProUGUI));
         subtituloObjeto.transform.SetParent(painel.transform, false);
         RectTransform subtituloRect = subtituloObjeto.GetComponent<RectTransform>();
-        subtituloRect.anchorMin = new Vector2(.12f, .46f);
-        subtituloRect.anchorMax = new Vector2(.88f, .55f);
+        subtituloRect.anchorMin = new Vector2(.12f, .48f);
+        subtituloRect.anchorMax = new Vector2(.88f, .57f);
         subtituloRect.offsetMin = subtituloRect.offsetMax = Vector2.zero;
         subtitulo = subtituloObjeto.GetComponent<TextMeshProUGUI>();
-        subtitulo.fontSize = 36;
+        subtitulo.fontSize = 26;
         subtitulo.enableAutoSizing = true;
         subtitulo.fontSizeMin = 18;
         subtitulo.color = Color.white;
@@ -176,8 +178,8 @@ public class ResultadoCombate : MonoBehaviour
         GameObject botaoObjeto = new GameObject("Reiniciar", typeof(RectTransform), typeof(Image), typeof(Button));
         botaoObjeto.transform.SetParent(painel.transform, false);
         RectTransform botaoRect = botaoObjeto.GetComponent<RectTransform>();
-        botaoRect.anchorMin = botaoRect.anchorMax = new Vector2(.5f, .39f);
-        botaoRect.sizeDelta = new Vector2(440, 110);
+        botaoRect.anchorMin = botaoRect.anchorMax = new Vector2(.5f, .34f);
+        botaoRect.sizeDelta = new Vector2(260, 64);
         botaoRect.anchoredPosition = Vector2.zero;
         Image imagemBotao = botaoObjeto.GetComponent<Image>();
         fundoBotao = imagemBotao;
@@ -191,12 +193,13 @@ public class ResultadoCombate : MonoBehaviour
         RectTransform rotuloRect = rotuloObjeto.GetComponent<RectTransform>();
         rotuloRect.anchorMin = Vector2.zero;
         rotuloRect.anchorMax = Vector2.one;
-        rotuloRect.offsetMin = rotuloRect.offsetMax = Vector2.zero;
+        rotuloRect.offsetMin = new Vector2(14, 7);
+        rotuloRect.offsetMax = new Vector2(-14, -7);
         TMP_Text rotulo = rotuloObjeto.GetComponent<TextMeshProUGUI>();
         rotulo.text = "REINICIAR";
-        rotulo.fontSize = 42;
+        rotulo.fontSize = 26;
         rotulo.enableAutoSizing = true;
-        rotulo.fontSizeMin = 18;
+        rotulo.fontSizeMin = 16;
         rotulo.color = Color.white;
         rotulo.alignment = TextAlignmentOptions.Center;
         rotulo.raycastTarget = false;

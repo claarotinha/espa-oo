@@ -39,6 +39,23 @@ public static class PrepararComportamentos
                 estado = maquina.AddState(nome, new Vector3((i % 3) * 240, (i / 3) * 100, 0));
                 estadosAlterados = true;
             }
+            // Estados sem Motion podem nao ser avaliados continuamente pelo Animator.
+            string caminhoClip = Pasta + "/Estado" + (i + 1).ToString("00") + ".anim";
+            AnimationClip clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(caminhoClip);
+            if (clip == null)
+            {
+                clip = new AnimationClip();
+                clip.name = "Estado" + (i + 1).ToString("00");
+                clip.frameRate = 30f;
+                clip.wrapMode = WrapMode.Loop;
+                // Clip vazio: nao sobrescreve a posicao controlada pelo script.
+                AssetDatabase.CreateAsset(clip, caminhoClip);
+            }
+            if (estado.motion != clip)
+            {
+                estado.motion = clip;
+                estadosAlterados = true;
+            }
             System.Type esperado = System.Type.GetType("Comportamento" + (i + 1).ToString("00") + ", Assembly-CSharp");
             if (esperado == null) continue; // Aguarda a compilacao/importacao dos scripts de estado.
             bool correto = estado.behaviours.Length == 1 && estado.behaviours[0] != null &&
@@ -66,6 +83,11 @@ public static class PrepararComportamentos
         if (animator == null) animator = chefe.AddComponent<Animator>();
         bool mudou = animator.runtimeAnimatorController != controller;
         if (mudou) animator.runtimeAnimatorController = controller;
+        if (animator.cullingMode != AnimatorCullingMode.AlwaysAnimate)
+        {
+            animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+            mudou = true;
+        }
         if (chefe.GetComponent<ChefaoCombate>() == null)
         {
             chefe.AddComponent<ChefaoCombate>();

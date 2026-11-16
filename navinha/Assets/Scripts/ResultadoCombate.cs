@@ -12,8 +12,8 @@ public class ResultadoCombate : MonoBehaviour
     [SerializeField] private Button botaoReiniciar;
     [SerializeField] private Image fundo;
     [SerializeField] private Image fundoBotao;
-    private Jogador jogador;
-    private ChefaoAlvo chefao;
+    [SerializeField] private Jogador jogador;
+    [SerializeField] private ChefaoAlvo chefao;
     private bool terminou;
 
     private void Awake()
@@ -28,8 +28,8 @@ public class ResultadoCombate : MonoBehaviour
     {
         if (jogador != null) jogador.DerrotaOcorrida -= AoPerder;
         if (chefao != null) chefao.VidaAlterada -= AoAlterarVida;
-        jogador = FindAnyObjectByType<Jogador>();
-        chefao = FindAnyObjectByType<ChefaoAlvo>();
+        if (jogador == null) jogador = FindAnyObjectByType<Jogador>();
+        if (chefao == null) chefao = FindAnyObjectByType<ChefaoAlvo>();
         if (jogador != null) jogador.DerrotaOcorrida += AoPerder;
         if (chefao != null) chefao.VidaAlterada += AoAlterarVida;
         if (botaoReiniciar != null)

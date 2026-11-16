@@ -5,7 +5,7 @@ public enum FaseVidaChefao { Alta, Media, Baixa, Derrotado }
 
 public class ChefaoAlvo : MonoBehaviour
 {
-    [SerializeField, Min(1)] private int vidaMaxima = 180;
+    [SerializeField, Min(1)] private int vidaMaxima = 60;
     [SerializeField] private int vidaAtual;
     public bool Invulneravel { get; private set; }
     public int Vida => vidaAtual;

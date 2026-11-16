@@ -29,7 +29,7 @@ public static class ConfigurarChefao
         t.position = new Vector3(0, 3.25f, t.position.z);
         if (chefe.GetComponent<Collider2D>() == null) chefe.gameObject.AddComponent<BoxCollider2D>();
         SerializedObject dados = new SerializedObject(chefe);
-        dados.FindProperty("vidaMaxima").intValue = 180;
+        dados.FindProperty("vidaMaxima").intValue = 60;
         dados.ApplyModifiedPropertiesWithoutUndo();
 
         BarraVidaChefao existente = Object.FindAnyObjectByType<BarraVidaChefao>();
@@ -71,7 +71,7 @@ public static class ConfigurarChefao
             slider.direction = Slider.Direction.LeftToRight;
             slider.fillRect = er;
             slider.targetGraphic = imagem;
-            slider.minValue = 0; slider.maxValue = 180; slider.value = 180;
+            slider.minValue = 0; slider.maxValue = 60; slider.value = 60;
             SerializedObject ui = new SerializedObject(raiz.GetComponent<BarraVidaChefao>());
             ui.FindProperty("chefao").objectReferenceValue = chefe;
             ui.FindProperty("barra").objectReferenceValue = slider;
@@ -80,7 +80,7 @@ public static class ConfigurarChefao
         }
         EditorSceneManager.MarkSceneDirty(cena);
         EditorSceneManager.SaveScene(cena);
-        Debug.Log("Chefao com 180 HP e barra de vida configurados.");
+        Debug.Log("Chefao com 60 HP e barra de vida configurados.");
     }
 }
 #endif
